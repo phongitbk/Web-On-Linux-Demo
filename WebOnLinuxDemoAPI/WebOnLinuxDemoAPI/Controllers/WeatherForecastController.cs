@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebOnLinuxDemoAPI.Controllers
 {
   [ApiController]
-  [Route("[controller]")]
+  [Route("[controller]/[action]")]
   public class WeatherForecastController : ControllerBase
   {
     private static readonly string[] Summaries = new[]
@@ -18,8 +18,8 @@ namespace WebOnLinuxDemoAPI.Controllers
       _logger = logger;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    [HttpGet]
+    public IEnumerable<WeatherForecast> GetAll()
     {
       return Enumerable.Range(1, 5).Select(index => new WeatherForecast
       {
@@ -28,6 +28,13 @@ namespace WebOnLinuxDemoAPI.Controllers
         Summary = Summaries[Random.Shared.Next(Summaries.Length)]
       })
       .ToArray();
+    }
+
+    [HttpPost]
+    public IActionResult Create([FromBody] WeatherForecast request)
+    {
+      request.Summary = "This is response";
+      return Ok(request);
     }
   }
 }
