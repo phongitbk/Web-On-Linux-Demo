@@ -4,10 +4,13 @@ import './App.css';
 
 function App() {
   const [weatherList, setWeatherList] = useState();
-  const [weather, setWeather] = useState();
   const [errorMessage, setErrorMessage] = useState();
 
   useEffect(() => {
+    getAllRecords();
+  }, []);
+
+  function getAllRecords() {
     axios.get('http://localhost:5108/WeatherForecast/GetAll')
       .then(response => {
         setWeatherList(response.data);
@@ -15,15 +18,15 @@ function App() {
       ).catch(error => {
         setErrorMessage(error.message)
       })
-  }, []);
+  };
 
   function addNewRecord() {
     axios.post('http://localhost:5108/WeatherForecast/Create', {
       date: new Date(),
       temperatureC: 10
     })
-      .then(response => {
-        setWeather(response.data);
+      .then(() => {
+        getAllRecords();
       }
       ).catch(error => {
         setErrorMessage(error.message)
@@ -32,11 +35,11 @@ function App() {
 
   return (
     <div className="App">
-      {weatherList && <p>Weather list: {JSON.stringify(weatherList)}</p>}
-      {errorMessage && <p>Error: {errorMessage}</p>}
-
       <button onClick={addNewRecord}>Add new</button>
-      {weather && <p>Weather: {JSON.stringify(weather)}</p>}
+      {weatherList && <div>Weather list: {weatherList.map(item => {
+        return <p>{JSON.stringify(item)}</p>
+      })}</div>}
+      {errorMessage && <p>Error: {errorMessage}</p>}
     </div >
   );
 }

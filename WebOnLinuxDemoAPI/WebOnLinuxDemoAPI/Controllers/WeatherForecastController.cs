@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebOnLinuxDemoAPI.Controllers
 {
@@ -6,35 +7,26 @@ namespace WebOnLinuxDemoAPI.Controllers
   [Route("[controller]/[action]")]
   public class WeatherForecastController : ControllerBase
   {
-    private static readonly string[] Summaries = new[]
-    {
-          "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-      };
+    private readonly DemoDbContext _context;
 
-    private readonly ILogger<WeatherForecastController> _logger;
-
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(DemoDbContext context)
     {
-      _logger = logger;
+      _context = context;
     }
 
     [HttpGet]
-    public IEnumerable<WeatherForecast> GetAll()
+    public async Task<IActionResult> GetAll()
     {
-      return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-      {
-        Date = DateTime.Now.AddDays(index),
-        TemperatureC = Random.Shared.Next(-20, 55),
-        Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-      })
-      .ToArray();
+      var list = await _context.WeatherForecasts.ToListAsync();
+      return Ok(list);
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] WeatherForecast request)
+    public async Task<IActionResult> Create([FromBody] WeatherForecast request)
     {
-      request.Summary = "This is response";
-      return Ok(request);
+      _context.WeatherForecasts.Add(request);
+      await _context.SaveChangesAsync();
+      return Ok();
     }
   }
 }
